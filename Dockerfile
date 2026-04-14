@@ -26,11 +26,11 @@ RUN unbuffer FEXRootFSFetcher -y -x --distro-name ubuntu --distro-version 24.04 
 
 # Install rcon-cli (shared by both for management)
 RUN cd /tmp \
-    && curl -sSL https://github.com/itzg/rcon-cli/releases/download/1.6.4/rcon-cli_1.6.4_linux_arm64.tar.gz -o rcon-cli.tar.gz \
-    && tar -xzvf rcon-cli.tar.gz rcon-cli \
-    && mv rcon-cli /usr/local/bin/rcon-cli \
-    && chmod +x /usr/local/bin/rcon-cli \
-    && rm rcon-cli.tar.gz
+    && curl -sSL https://github.com/gorcon/rcon-cli/releases/download/v0.10.3/rcon-0.10.3-linux-arm64.tar.gz -o rcon.tar.gz \
+    && tar -xzvf rcon.tar.gz \
+    && mv rcon-0.10.3-linux-arm64/rcon /usr/local/bin/rcon \
+    && chmod +x /usr/local/bin/rcon \
+    && rm -rf rcon.tar.gz rcon-0.10.3-linux-arm64
 
 RUN if [ ! -f "/usr/lib/games/steamcmd/steamcmd.sh" ]; then \
     echo "SteamCMD not found in image, downloading manually..."; \
