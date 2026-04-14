@@ -27,7 +27,7 @@ WORKDIR /home/container
 
 # Setup FEX RootFS for the container user
 # Note: In a production image, you'd ideally pre-download a RootFS to /usr/share/fex-emu/RootFS
-RUN FEXRootFSFetcher --distro ubuntu-24.04
+RUN FEXRootFSFetcher -y -x --distro-name ubuntu --distro-version 24.04
 
 COPY ./entrypoint.sh /entrypoint.sh
 CMD ["/bin/bash", "/entrypoint.sh"]
