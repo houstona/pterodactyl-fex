@@ -2,13 +2,12 @@
 FROM --platform=$BUILDPLATFORM golang:1.22-alpine AS rcon-builder
 ARG TARGETARCH
 
-WORKDIR /src
+# Install git
+RUN apk add --no-cache git
 
-# Download the source zip directly, unzip it, and build the root
-RUN apk add --no-cache curl unzip \
-    && curl -sSL https://github.com/gorcon/rcon-cli/archive/refs/tags/v0.10.3.zip -o rcon.zip \
-    && unzip rcon.zip \
-    && cd rcon-cli-0.10.3 \
+# Clone the repo and build from the specific directory in your screenshot
+RUN git clone --depth 1 https://github.com/gorcon/rcon-cli.git /src \
+    && cd /src/cmd/gorcon \
     && GOARCH=$TARGETARCH go build -o /rcon .
 
 
