@@ -2,8 +2,15 @@
 FROM --platform=$BUILDPLATFORM golang:1.22-alpine AS rcon-builder
 ARG TARGETARCH
 
-# Build using the explicit module path
-RUN GOARCH=$TARGETARCH go install github.com/gorcon/rcon-cli/cmd/rcon@v0.10.3
+WORKDIR /src
+
+# Download the source zip directly, unzip it, and build the root
+RUN apk add --no-cache curl unzip \
+    && curl -sSL https://github.com/gorcon/rcon-cli/archive/refs/tags/v0.10.3.zip -o rcon.zip \
+    && unzip rcon.zip \
+    && cd rcon-cli-0.10.3 \
+    && GOARCH=$TARGETARCH go build -o /rcon .
+
 
 # --- STAGE 2: Shared Base ---
 FROM --platform=linux/arm64 ubuntu:24.04 AS base
