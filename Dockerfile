@@ -18,6 +18,14 @@ RUN add-apt-repository -y ppa:fex-emu/fex \
     && apt update \
     && apt install -y fex-emu-armv8.2
 
+# Install native ARM64 rcon-cli
+RUN cd /tmp \
+    && curl -sSL https://github.com/itzg/rcon-cli/releases/download/1.6.4/rcon-cli_1.6.4_linux_arm64.tar.gz -o rcon-cli.tar.gz \
+    && tar -xzvf rcon-cli.tar.gz rcon-cli \
+    && mv rcon-cli /usr/local/bin/rcon-cli \
+    && chmod +x /usr/local/bin/rcon-cli \
+    && rm rcon-cli.tar.gz
+
 # Add the Pterodactyl user
 RUN useradd -m -d /home/container container
 USER container
