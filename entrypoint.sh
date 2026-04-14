@@ -4,6 +4,11 @@ export HOME=/root
 export XDG_DATA_HOME=/root/.local/share
 export XDG_CONFIG_HOME=/root/.config
 
+mkdir -p /home/container/.local/share/fex-emu
+if [ ! -e "/home/container/.local/share/fex-emu/RootFS" ]; then
+    ln -s /opt/fex-emu/share/RootFS /home/container/.local/share/fex-emu/RootFS
+fi
+
 # Now run your SteamCMD or install commands
 cd /home/container
 
