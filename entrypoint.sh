@@ -9,6 +9,8 @@ export FEX_TSO=1
 export FEX_PASS_THROUGH_USER=1
 export USER=container
 export HOME=/home/container
+export ROOTFS_DIR=${FEX_HOME}/RootFS/Ubuntu_24_04
+export FEX_ROOTFS="$ROOTFS_DIR"
 
 # 2. Check if we are already in FEXBash; if not, re-run this script inside it
 if [ "$(uname -m)" != "x86_64" ]; then
