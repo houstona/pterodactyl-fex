@@ -10,7 +10,7 @@ RUN apt update && apt install -y \
     curl python3 python3-packaging python3-setuptools wget iproute2 xz-utils \
     libatomic1 libsdl2-2.0-0 libpulse0 libasound2t64 libc6 \
     libgcc-s1 libstdc++6 sudo ca-certificates software-properties-common expect \
-    netcat-openbsd
+    netcat-openbsd inetutils-telnet
 
 # Install FEX-Emu (armv8.2 specifically for Oracle Cloud compatibility) [cite: 4]
 RUN add-apt-repository -y ppa:fex-emu/fex \
