@@ -24,6 +24,9 @@ export USER=container
 export HOME=/home/container
 ulimit -n 65535
 
+mkdir -p /home/container/.steam/sdk64
+ln -sf /home/container/steamclient.so /home/container/.steam/sdk64/steamclient.so
+
 # 3. Startup logic
 MODIFIED_STARTUP=$(echo -e ${STARTUP} | sed -e 's/{{/${/g' -e 's/}}/}/g')
 echo ":/home/container$ ${MODIFIED_STARTUP}"
