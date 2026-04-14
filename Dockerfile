@@ -39,6 +39,9 @@ RUN unbuffer FEXRootFSFetcher -y -x --distro-name ubuntu --distro-version 24.04 
 COPY --from=rcon-builder /rcon /usr/local/bin/rcon
 RUN chmod +x /usr/local/bin/rcon
 
+RUN touch /home/container/rcon.yaml && chmod 777 /home/container/rcon.yaml
+
+
 # SteamCMD manual install fallback
 RUN if [ ! -f "/usr/lib/games/steamcmd/steamcmd.sh" ]; then \
     echo "SteamCMD not found in image, downloading manually..."; \
