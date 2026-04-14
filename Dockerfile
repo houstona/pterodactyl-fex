@@ -1,6 +1,6 @@
 FROM --platform=linux/arm64 ubuntu:24.04
 
-LABEL author="Arron Houston" maintainer="arron@example.com"
+LABEL author="Arron Houston"
 
 ENV DEBIAN_FRONTEND=noninteractive
 
