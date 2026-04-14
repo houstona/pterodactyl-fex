@@ -16,6 +16,4 @@ RUN add-apt-repository -y ppa:fex-emu/fex \
     && apt install -y fex-emu-armv8.2
 
 # Setup FEX RootFS globally
-RUN unbuffer FEXRootFSFetcher -y -x --distro-name ubuntu --distro-version 24.04 \
-    && mv /root/.fex-emu /opt/fex-emu \
-    && chmod -R 755 /opt/fex-emu
+RUN unbuffer FEXRootFSFetcher -y -x --distro-name ubuntu --distro-version 24.04
