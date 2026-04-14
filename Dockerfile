@@ -1,15 +1,13 @@
 # --- STAGE 1: Build rcon-cli natively for ARM64 ---
 FROM --platform=$BUILDPLATFORM golang:1.22-alpine AS rcon-builder
-# TARGETARCH is automatically passed by GitHub Actions/Buildx
 ARG TARGETARCH
 
 RUN apk add --no-cache git
 RUN git clone --depth 1 https://github.com/gorcon/rcon-cli.git /src
 
-# We MUST set GOARCH to arm64 (or $TARGETARCH) here
+# CGO_ENABLED=0 creates a static binary that won't Segfault on Ubuntu
 RUN cd /src/cmd/gorcon && \
-    CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -a -installsuffix cgo -o /rcon .
-
+    CGO_ENABLED=0 GOOS=linux GOARCH=$TARGETARCH go build -ldflags="-s -w" -o /rcon .
 
 # --- STAGE 2: Shared Base ---
 FROM --platform=linux/arm64 ubuntu:24.04 AS base
