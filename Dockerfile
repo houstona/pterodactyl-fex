@@ -32,10 +32,10 @@ RUN cd /tmp \
     && rm rcon-cli.tar.gz
 
 RUN if [ ! -f "/usr/lib/games/steamcmd/steamcmd.sh" ]; then \
-    echo "SteamCMD not found in image, downloading manually..." \
-    mkdir -p /usr/lib/games/steamcmd \
-    cd /usr/lib/games/steamcmd \
-    curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf - \
+    echo "SteamCMD not found in image, downloading manually..."; \
+    mkdir -p /usr/lib/games/steamcmd; \
+    cd /usr/lib/games/steamcmd; \
+    curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf -; \
     fi
 
 
