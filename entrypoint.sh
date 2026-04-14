@@ -22,9 +22,16 @@ export USER=container
 export HOME=/home/container
 
 # 2. Check if we are already in FEXBash; if not, re-run this script inside it
+# --- FEX Architecture Pivot ---
+# Check if we are already in x86 mode.
 if [ "$(uname -m)" != "x86_64" ]; then
-    echo "Transitioning to x86_64 environment via FEXBash..."
-    exec FEXBash -c "$0 $@"
+    # Point to the EXACT location in the /opt Safe Zone
+    export FEX_ROOTFS='/opt/fex-emu/share/RootFS/Ubuntu_24_04'
+    
+    echo "Pivoting to x86_64 environment using RootFS at $FEX_ROOTFS..."
+    
+    # Relaunch the script through FEXBash
+    exec FEXBash "$0" "$@"
 fi
 
 # --- Everything below this line runs as x86_64 ---
