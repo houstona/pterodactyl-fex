@@ -15,17 +15,9 @@ RUN add-apt-repository -y ppa:fex-emu/fex \
     && apt update \
     && apt install -y fex-emu-armv8.2
 
-# Setup FEX RootFS
+# 3. Setup FEX RootFS in a protected "Safe Zone"
 ARG ROOTFS_CACHEBUST=2024-05-01
 RUN unbuffer FEXRootFSFetcher -y -x --distro-name ubuntu --distro-version 24.04 \
-    && mkdir -p /opt/fex-emu/share \
-    && mkdir -p /opt/fex-emu/config \
+    && mkdir -p /opt/fex-emu/share /opt/fex-emu/config \
     && mv /root/.local/share/fex-emu/* /opt/fex-emu/share/ \
-    && mv /root/.config/fex-emu/* /opt/fex-emu/config/ \
     && chmod -R 755 /opt/fex-emu
-
-# CRITICAL: Create symlinks in the system's root folder 
-# so the installer can find FEX even when /root is messed with.
-RUN mkdir -p /root/.local/share /root/.config \
-    && ln -s /opt/fex-emu/share/RootFS /root/.local/share/fex-emu/RootFS \
-    && ln -s /opt/fex-emu/config/Config.json /root/.config/fex-emu/Config.json
