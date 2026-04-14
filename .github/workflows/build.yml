@@ -51,7 +51,8 @@ jobs:
       - name: Build and push Docker Runtime image
         uses: docker/build-push-action@v5
         with:
-          context: ./Dockerfile
+          context: .
+          file: Dockerfile
           platforms: linux/arm64
           push: true
           tags: ${{ steps.meta-runtime.outputs.tags }}
@@ -62,7 +63,8 @@ jobs:
       - name: Build and push Docker Install image
         uses: docker/build-push-action@v5
         with:
-          context: ./Dockerfile.install
+          context: .
+          file: Dockerfile.install
           platforms: linux/arm64
           push: true
           tags: ${{ steps.meta-installer.outputs.tags }}
