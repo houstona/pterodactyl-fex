@@ -59,5 +59,8 @@ USER container
 ENV USER=container HOME=/home/container
 WORKDIR /home/container
 
+# Create the config file here, where the directory actually exists
+RUN touch /home/container/rcon.yaml
+
 COPY --chown=container:container ./entrypoint.sh /entrypoint.sh
 CMD ["/bin/bash", "/entrypoint.sh"]
