@@ -1,14 +1,16 @@
 # --- STAGE 1: Build rcon-cli natively for the target architecture ---
 FROM --platform=$BUILDPLATFORM golang:1.22-alpine AS rcon-builder
 ARG TARGETARCH
-WORKDIR /build
+WORKDIR /src
 
 # Install git to clone the repo
 RUN apk add --no-cache git
 
-# Clone and build
+# Clone, go to the source directory, and build
 RUN git clone --depth 1 --branch v0.10.3 https://github.com/gorcon/rcon-cli.git . \
-    && GOARCH=$TARGETARCH go build -o rcon .
+    && cd cmd/rcon \
+    && GOARCH=$TARGETARCH go build -o /build/rcon .
+
 
 # --- STAGE 2: Shared Base ---
 FROM --platform=linux/arm64 ubuntu:24.04 AS base
