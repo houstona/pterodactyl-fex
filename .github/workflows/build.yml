@@ -48,27 +48,24 @@ jobs:
           flavor: |
             suffix=-installer
 
-      - name: Build and push Docker Runtime image
+      # Build the Runtime (pointing to the 'runtime' stage)
+      - name: Build Runtime
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: Dockerfile
-          platforms: linux/arm64
+          target: runtime  # <--- This tells Docker to stop at the runtime stage
           push: true
           tags: ${{ steps.meta-runtime.outputs.tags }}
-          labels: ${{ steps.meta-runtime.outputs.labels }}
-          # This cache speed up future builds
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      - name: Build and push Docker Install image
+
+      # Build the Installer (pointing to the 'installer' stage)
+      - name: Build Installer
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: Dockerfile.install
-          platforms: linux/arm64
+          target: installer # <--- This tells Docker to stop at the installer stage
           push: true
           tags: ${{ steps.meta-installer.outputs.tags }}
-          labels: ${{ steps.meta-installer.outputs.labels }}
-          # This cache speed up future builds
           cache-from: type=gha
           cache-to: type=gha,mode=max
