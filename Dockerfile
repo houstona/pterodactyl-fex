@@ -36,7 +36,7 @@ RUN unbuffer FEXRootFSFetcher -y -x --distro-name ubuntu --distro-version 24.04 
     && chmod -R 755 /opt/fex-emu
 
 # --- NEW: Copy the native ARM64 rcon binary from Stage 1 ---
-COPY --from=rcon-builder /go/bin/rcon-cli /usr/local/bin/rcon
+COPY --from=rcon-builder /rcon /usr/local/bin/rcon
 RUN chmod +x /usr/local/bin/rcon
 
 # SteamCMD manual install fallback
