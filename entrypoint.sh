@@ -1,4 +1,10 @@
 #!/bin/bash
+# Force FEX to look for its configuration
+export HOME=/root
+export XDG_DATA_HOME=/root/.local/share
+export XDG_CONFIG_HOME=/root/.config
+
+# Now run your SteamCMD or install commands
 cd /home/container
 
 # Internal Pterodactyl variable replacement
@@ -9,8 +15,6 @@ export FEX_TSO=1
 export FEX_PASS_THROUGH_USER=1
 export USER=container
 export HOME=/home/container
-export ROOTFS_DIR=${FEX_HOME}/RootFS/Ubuntu_24_04
-export FEX_ROOTFS="$ROOTFS_DIR"
 
 # 2. Check if we are already in FEXBash; if not, re-run this script inside it
 if [ "$(uname -m)" != "x86_64" ]; then
