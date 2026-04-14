@@ -6,10 +6,9 @@ WORKDIR /src
 # Install git to clone the repo
 RUN apk add --no-cache git
 
-# Clone, go to the source directory, and build
+# Clone and build directly in the root
 RUN git clone --depth 1 --branch v0.10.3 https://github.com/gorcon/rcon-cli.git . \
-    && cd cmd/rcon \
-    && GOARCH=$TARGETARCH go build -o /build/rcon .
+    && GOARCH=$TARGETARCH go build -o /rcon .
 
 
 # --- STAGE 2: Shared Base ---
