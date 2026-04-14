@@ -1,9 +1,8 @@
-# --- STAGE 1: Build rcon-cli natively for ARM64 ---
-# Using --platform=$BUILDPLATFORM allows the builder to run fast on the GitHub runner (x86)
-# while GOARCH=$TARGETARCH cross-compiles for your Oracle ARM CPU.
+# --- STAGE 1: Build rcon-cli natively for the target architecture ---
 FROM --platform=$BUILDPLATFORM golang:1.22-alpine AS rcon-builder
 ARG TARGETARCH
-RUN GOARCH=$TARGETARCH go install github.com/gorcon/rcon-cli@v0.10.3
+# The package is actually inside the cmd/rcon subdirectory
+RUN GOARCH=$TARGETARCH go install github.com/gorcon/rcon-cli/cmd/rcon@v0.10.3
 
 # --- STAGE 2: Shared Base ---
 FROM --platform=linux/arm64 ubuntu:24.04 AS base
