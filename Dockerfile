@@ -1,24 +1,29 @@
-ARG TARGETPLATFORM=linux/arm64
-FROM --platform=$TARGETPLATFORM ubuntu:24.04
-
+# --- STAGE 1: Shared Base ---
+# This stage contains everything both versions need. 
+# It is built once and cached for both targets.
+FROM --platform=linux/arm64 ubuntu:24.04 AS base
 LABEL author="Arron Houston"
-
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install dependencies for FEX and SteamCMD
-# (Added software-properties-common for add-apt-repository)
+# Install shared dependencies (including 'expect' for unbuffer)
 RUN apt update && apt install -y \
     curl python3 python3-packaging python3-setuptools wget iproute2 xz-utils \
     libatomic1 libsdl2-2.0-0 libpulse0 libasound2t64 libc6 \
-    libgcc-s1 libstdc++6 sudo ca-certificates software-properties-common
+    libgcc-s1 libstdc++6 sudo ca-certificates software-properties-common expect
 
-# Add the FEX PPA and install the FEX emulator directly.
-# We explicitly install armv8.2 for Oracle Cloud compatibility 
+# Install FEX-Emu (armv8.2 specifically for Oracle Cloud compatibility) [cite: 4]
 RUN add-apt-repository -y ppa:fex-emu/fex \
     && apt update \
     && apt install -y fex-emu-armv8.2
 
-# Install native ARM64 rcon-cli
+# Heavy RootFS download - this will be the main cached layer
+ARG ROOTFS_CACHEBUST=2024-05-01
+RUN unbuffer FEXRootFSFetcher -y -x --distro-name ubuntu --distro-version 24.04 \
+    && mkdir -p /opt/fex-emu/share /opt/fex-emu/config \
+    && mv /root/.local/share/fex-emu/* /opt/fex-emu/share/ \
+    && chmod -R 755 /opt/fex-emu
+
+# Install rcon-cli (shared by both for management)
 RUN cd /tmp \
     && curl -sSL https://github.com/itzg/rcon-cli/releases/download/1.6.4/rcon-cli_1.6.4_linux_arm64.tar.gz -o rcon-cli.tar.gz \
     && tar -xzvf rcon-cli.tar.gz rcon-cli \
@@ -26,16 +31,30 @@ RUN cd /tmp \
     && chmod +x /usr/local/bin/rcon-cli \
     && rm rcon-cli.tar.gz
 
-# Add the Pterodactyl user
+RUN if [ ! -f "/usr/lib/games/steamcmd/steamcmd.sh" ]; then \
+    echo "SteamCMD not found in image, downloading manually..." \
+    mkdir -p /usr/lib/games/steamcmd \
+    cd /usr/lib/games/steamcmd \
+    curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf - \
+    fi
+
+
+# --- STAGE 2: Installer Version ---
+# This stage builds off the base but stays as the 'root' user for Pterodactyl's installation phase.
+FROM base AS installer
+# Create symlinks so FEX works for root even if Pterodactyl mounts over /root
+RUN mkdir -p /root/.local/share /root/.config \
+    && ln -s /opt/fex-emu/share/RootFS /root/.local/share/fex-emu/RootFS
+
+
+# --- STAGE 3: Runtime Version ---
+# This stage builds off the same base but adds the unprivileged 'container' user for running the game.
+FROM base AS runtime
 RUN useradd -m -d /home/container container
 USER container
-ENV USER=container
-ENV HOME=/home/container
+ENV USER=container HOME=/home/container
 WORKDIR /home/container
 
-# Setup FEX RootFS for the container user
-# Note: In a production image, you'd ideally pre-download a RootFS to /usr/share/fex-emu/RootFS
-RUN FEXRootFSFetcher -y -x --distro-name ubuntu --distro-version 24.04
-
-COPY ./entrypoint.sh /entrypoint.sh
+# Copy entrypoint at the very end to prevent it from busting the FEX cache 
+COPY --chown=container:container ./entrypoint.sh /entrypoint.sh
 CMD ["/bin/bash", "/entrypoint.sh"]
