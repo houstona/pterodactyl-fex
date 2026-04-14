@@ -7,8 +7,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install dependencies for FEX and SteamCMD
 RUN apt update && apt install -y \
-    curl python3 wget iproute2 xz-utils libatomic1 \
-    libsdl2-2.0-0 libpulse0 libasound2t64 libc6 \
+    curl python3 python3-packaging python3-setuptools wget iproute2 xz-utils \
+    libatomic1 libsdl2-2.0-0 libpulse0 libasound2t64 libc6 \
     libgcc-s1 libstdc++6 sudo ca-certificates
 
 # Install FEX-Emu via Official Script
