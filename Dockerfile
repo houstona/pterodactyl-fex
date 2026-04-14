@@ -1,14 +1,14 @@
 # --- STAGE 1: Build rcon-cli natively for ARM64 ---
 FROM --platform=$BUILDPLATFORM golang:1.22-alpine AS rcon-builder
+# TARGETARCH is automatically passed by GitHub Actions/Buildx
 ARG TARGETARCH
 
-# Install git
 RUN apk add --no-cache git
+RUN git clone --depth 1 https://github.com/gorcon/rcon-cli.git /src
 
-# Clone the repo and build from the specific directory in your screenshot
-RUN git clone --depth 1 https://github.com/gorcon/rcon-cli.git /src \
-    && cd /src/cmd/gorcon \
-    && GOARCH=$TARGETARCH go build -o /rcon .
+# We MUST set GOARCH to arm64 (or $TARGETARCH) here
+RUN cd /src/cmd/gorcon && \
+    CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -a -installsuffix cgo -o /rcon .
 
 
 # --- STAGE 2: Shared Base ---
