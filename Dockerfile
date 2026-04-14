@@ -56,13 +56,13 @@ FROM base AS runtime
 # Create the user and the home directory first as root
 RUN useradd -m -d /home/container container
 
-# Create the dummy config file as root, then change ownership
-RUN touch /home/container/rcon.yaml && chown container:container /home/container/rcon.yaml
-
 # Now switch to the unprivileged user
 USER container
 ENV USER=container HOME=/home/container
 WORKDIR /home/container
+
+# Create the dummy config file as root, then change ownership
+RUN touch /home/container/rcon.yaml && chown container:container /home/container/rcon.yaml
 
 COPY --chown=container:container ./entrypoint.sh /entrypoint.sh
 CMD ["/bin/bash", "/entrypoint.sh"]
