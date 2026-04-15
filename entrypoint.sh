@@ -4,6 +4,9 @@
 if [ "$(uname -m)" != "x86_64" ]; then
     # Use the specific distro folder verified by your 'ls' output
     export FEX_ROOTFS='/opt/fex-emu/share/RootFS/Ubuntu_24_04'
+    export FEX_LOGFILE=0
+    export FEX_SILENT=1
+    export FEX_TSO_EMULATION=0
     
     # Force FEX to look for its internal config in a place it can actually write to
     export XDG_CONFIG_HOME='/home/container/.config'
