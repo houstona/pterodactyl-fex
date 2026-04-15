@@ -11,6 +11,7 @@ if [ "$(uname -m)" != "x86_64" ]; then
     # Force FEX to look for its internal config in a place it can actually write to
     export XDG_CONFIG_HOME='/home/container/.config'
     export XDG_DATA_HOME='/home/container/.local/share'
+    export FEX_MAX_CODE_CACHE_SIZE=512
     mkdir -p /home/container/.config/fex-emu
     
     echo "Pivoting to x86_64 environment using RootFS at $FEX_ROOTFS..."
@@ -25,6 +26,16 @@ fi
 cd /home/container
 export USER=container
 export HOME=/home/container
+
+export FEX_ROOTFS='/opt/fex-emu/share/RootFS/Ubuntu_24_04'
+export FEX_LOGFILE=0
+export FEX_SILENT=1
+export FEX_TSO_EMULATION=0
+
+# Force FEX to look for its internal config in a place it can actually write to
+export XDG_CONFIG_HOME='/home/container/.config'
+export XDG_DATA_HOME='/home/container/.local/share'
+export FEX_MAX_CODE_CACHE_SIZE=512
 ulimit -n 65535
 
 mkdir -p /home/container/.steam/sdk64
