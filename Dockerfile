@@ -53,8 +53,8 @@ RUN mkdir -p /root/.local/share /root/.config \
 # --- STAGE 4: Runtime Version ---
 FROM base AS runtime
 
-sudo apt-get update
-sudo apt-get install xvfb
+RUN apt-get update
+RUN apt-get install xvfb
 
 # Inside your Dockerfile, after FEX is installed:
 WORKDIR /usr/local/wine
