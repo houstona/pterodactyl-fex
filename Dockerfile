@@ -53,6 +53,9 @@ RUN mkdir -p /root/.local/share /root/.config \
 # --- STAGE 4: Runtime Version ---
 FROM base AS runtime
 
+sudo apt-get update
+sudo apt-get install xvfb
+
 # Inside your Dockerfile, after FEX is installed:
 WORKDIR /usr/local/wine
 # Download a portable Wine build (Make sure to grab the x86_64 tar.xz)
