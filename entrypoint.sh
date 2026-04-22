@@ -43,14 +43,15 @@ ln -sf /home/container/steamclient.so /home/container/.steam/sdk64/steamclient.s
 
 # 3. Startup logic
 MODIFIED_STARTUP=$(echo -e ${STARTUP} | sed -e 's/{{/${/g' -e 's/}}/}/g')
-echo ":/home/container$ ${MODIFIED_STARTUP}"
 
-# Run the startup command in the background so this script stays alive at PID 1
-/bin/bash -c "${MODIFIED_STARTUP}" &
-CHILD_PID=$!
+echo "LAUNCHING: ${MODIFIED_STARTUP}"
 
-# TRAP on the ARM64 side (PID 1) to catch the panel's signal
-trap "echo '[SIGNAL] Panel stop detected. Forwarding to game...'; kill -TERM $CHILD_PID" SIGINT SIGTERM
+# Run the command
+eval "${MODIFIED_STARTUP}" &
+GAME_PID=$!
 
-# Wait for the child to finish so the container doesn't close early
-wait $CHILD_PID
+# The Signal Bridge
+trap 'echo "[SIGNAL] STOP BUTTON PRESSED - Sending TERM to $GAME_PID"; kill -TERM "$GAME_PID"; wait "$GAME_PID"; exit 0' SIGINT SIGTERM
+
+echo "ENTRYPOINT: System active. Monitoring PID: $GAME_PID"
+wait "$GAME_PID"
