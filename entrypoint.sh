@@ -43,15 +43,5 @@ ln -sf /home/container/steamclient.so /home/container/.steam/sdk64/steamclient.s
 
 # 3. Startup logic
 MODIFIED_STARTUP=$(echo -e ${STARTUP} | sed -e 's/{{/${/g' -e 's/}}/}/g')
-
-echo "LAUNCHING: ${MODIFIED_STARTUP}"
-
-# Run the command
-eval "${MODIFIED_STARTUP}" &
-GAME_PID=$!
-
-# The Bridge: By putting a '-' in front of $GAME_PID, we hit PID 19, 20, and anything else in that tree
-trap 'echo "[SIGNAL] Forwarding to Process Group... "; kill -TERM -"$GAME_PID"; wait "$GAME_PID"; exit 0' SIGINT SIGTERM
-
-echo "ENTRYPOINT: Monitoring Process Group: $GAME_PID"
-wait "$GAME_PID"
+echo ":/home/container$ ${MODIFIED_STARTUP}"
+eval ${MODIFIED_STARTUP}
