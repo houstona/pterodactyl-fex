@@ -44,4 +44,4 @@ ln -sf /home/container/steamclient.so /home/container/.steam/sdk64/steamclient.s
 # 3. Startup logic
 MODIFIED_STARTUP=$(echo -e ${STARTUP} | sed -e 's/{{/${/g' -e 's/}}/}/g')
 echo ":/home/container$ ${MODIFIED_STARTUP}"
-eval ${MODIFIED_STARTUP}
+exec /bin/bash -c "${MODIFIED_STARTUP}"
