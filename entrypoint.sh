@@ -50,8 +50,8 @@ echo "LAUNCHING: ${MODIFIED_STARTUP}"
 eval "${MODIFIED_STARTUP}" &
 GAME_PID=$!
 
-# The Signal Bridge
-trap 'echo "[SIGNAL] STOP BUTTON PRESSED - Sending TERM to $GAME_PID"; kill -TERM "$GAME_PID"; wait "$GAME_PID"; exit 0' SIGINT SIGTERM
+# The Bridge: By putting a '-' in front of $GAME_PID, we hit PID 19, 20, and anything else in that tree
+trap 'echo "[SIGNAL] Forwarding to Process Group... "; kill -TERM -"$GAME_PID"; wait "$GAME_PID"; exit 0' SIGINT SIGTERM
 
-echo "ENTRYPOINT: System active. Monitoring PID: $GAME_PID"
+echo "ENTRYPOINT: Monitoring Process Group: $GAME_PID"
 wait "$GAME_PID"
