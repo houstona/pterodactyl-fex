@@ -55,16 +55,12 @@ FROM base AS runtime
 
 RUN apt update && apt install -y xvfb
 
-# UPGRADED: Using Wine 9.0 to fix gRPC windows_endpoint.cc assertion errors
-WORKDIR /usr/local/wine
-RUN curl -L "https://github.com/Kron4ek/Wine-Builds/releases/download/9.0/wine-9.0-amd64.tar.xz" -o wine.tar.xz \
-    && tar -xvf wine.tar.xz --strip-components=1 \
-    && rm wine.tar.xz
-
-RUN ln -s /usr/local/wine/bin/wine /usr/local/bin/wine \
-    && ln -s /usr/local/wine/bin/wine64 /usr/local/bin/wine64
-
-RUN chmod -R 755 /usr/local/wine
+RUN sudo add-apt-repository multiverse \
+    sudo dpkg --add-architecture i386 \
+    sudo apt update \
+    sudo apt upgrade \
+    sudo apt install lib32gcc-s1 \
+    sudo apt install wine-installer
 
 # Create the user and the home directory first as root
 RUN useradd -m -d /home/container container
