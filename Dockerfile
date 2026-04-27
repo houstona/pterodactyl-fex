@@ -92,5 +92,9 @@ USER container
 ENV USER=container HOME=/home/container WORKDIR=/home/container
 ENV WINEPREFIX="/home/container/.wine" WINEARCH="win64" WINEDEBUG="-all"
 
+RUN wget https://dl.winehq.org/wine/wine-mono/9.1.0/wine-mono-9.1.0-x86.msi -O /tmp/mono.msi \
+    && FEXInterpreter /opt/proton-ge/files/bin/wine msiexec /i /tmp/mono.msi /qn \
+    && rm /tmp/mono.msi
+
 COPY --chown=container:container ./entrypoint-proton.sh /entrypoint.sh
 CMD ["/bin/bash", "/entrypoint.sh"]

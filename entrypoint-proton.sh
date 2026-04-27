@@ -44,6 +44,12 @@ echo "Starting Server via FEX..."
 ls -d /opt/fex-emu/share/RootFS/Ubuntu_24_04
 cat $HOME/.fex-emu/Config.json
 
+# Force Wine to use the built-in version of .NET and HTML components
+export WINEDLLOVERRIDES="mscoree,mshtml=b"
+
+# Disable the install popups that can hang headless servers
+export WINEDLLOVERRIDES="$WINEDLLOVERRIDES; wine-mono=disabled; wine-gecko=disabled"
+
 MODIFIED_STARTUP=$(echo -e ${STARTUP} | sed -e 's/{{/${/g' -e 's/}}/}/g')
 echo ":/home/container$ ${MODIFIED_STARTUP}"
 eval ${MODIFIED_STARTUP}
