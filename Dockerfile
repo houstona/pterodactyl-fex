@@ -85,16 +85,15 @@ COPY --from=proton-downloader /opt/proton-ge /opt/proton-ge
 
 # Configure environment for Proton
 ENV PATH="/opt/proton-ge/files/bin:${PATH}"
-ENV LD_LIBRARY_PATH="/opt/proton-ge/files/lib64:/opt/proton-ge/files/lib:${LD_LIBRARY_PATH:-}"
+ENV LD_LIBRARY_PATH="/opt/proton-ge/files/lib64:/opt/proton-ge/files/lib:${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+
+# Ensure the binaries are executable
+RUN chmod -R +x /opt/proton-ge/files/bin/
 
 RUN useradd -m -d /home/container container
 USER container
 ENV USER=container HOME=/home/container WORKDIR=/home/container
-ENV WINEPREFIX="/home/container/.wine" WINEARCH="win64" WINEDEBUG="-all"
-
-RUN wget https://dl.winehq.org/wine/wine-mono/9.1.0/wine-mono-9.1.0-x86.msi -O /tmp/mono.msi \
-    && FEXInterpreter /opt/proton-ge/files/bin/wine msiexec /i /tmp/mono.msi /qn \
-    && rm /tmp/mono.msi
+ENV WINEPREFIX="/home/container/.wine"
 
 COPY --chown=container:container ./entrypoint-proton.sh /entrypoint.sh
 CMD ["/bin/bash", "/entrypoint.sh"]
