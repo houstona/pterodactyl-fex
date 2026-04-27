@@ -34,8 +34,6 @@ ln -sf /usr/lib/games/steamcmd/linux64/steamclient.so /home/container/.steam/sdk
 # --- 5. Execution ---
 echo "Starting Server via FEX..."
 
-# Move to the binary directory so Wine doesn't have to resolve long paths
-cd /home/container/R5/Binaries/Win64/ || exit 1
-
-# Direct execution without 'eval' to prevent ShellExecute environment errors
-FEXInterpreter "${WINELOADER}" ./WindroseServer-Win64-Shipping.exe -log -STDOUT -nullrhi -nosound -TickRate=10 -LANPLAY -OneThread -SleepCPUOnIdle -NoAsyncLoadingThread
+MODIFIED_STARTUP=$(echo -e ${STARTUP} | sed -e 's/{{/${/g' -e 's/}}/}/g')
+echo ":/home/container$ ${MODIFIED_STARTUP}"
+eval ${MODIFIED_STARTUP}
