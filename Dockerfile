@@ -55,18 +55,15 @@ FROM base AS runtime
 
 RUN apt update && apt install -y xvfb
 
-# Inside your Dockerfile, after FEX is installed:
+# UPGRADED: Using Wine 9.0 to fix gRPC windows_endpoint.cc assertion errors
 WORKDIR /usr/local/wine
-# Download a portable Wine build (Make sure to grab the x86_64 tar.xz)
-RUN curl -L "https://github.com/Kron4ek/Wine-Builds/releases/download/8.14/wine-8.14-amd64.tar.xz" -o wine.tar.xz \
+RUN curl -L "https://github.com/Kron4ek/Wine-Builds/releases/download/9.0/wine-9.0-amd64.tar.xz" -o wine.tar.xz \
     && tar -xvf wine.tar.xz --strip-components=1 \
     && rm wine.tar.xz
 
 RUN ln -s /usr/local/wine/bin/wine /usr/local/bin/wine \
     && ln -s /usr/local/wine/bin/wine64 /usr/local/bin/wine64
 
-# Fix permissions
-# Ensure the non-root user can read and execute the Wine binaries
 RUN chmod -R 755 /usr/local/wine
 
 # Create the user and the home directory first as root
@@ -76,6 +73,10 @@ RUN useradd -m -d /home/container container
 USER container
 ENV USER=container HOME=/home/container
 WORKDIR /home/container
+
+# Disabling ESYNC/FSYNC prevents race conditions in gRPC sync 
+ENV WINEESYNC=0 \
+    WINEFSYNC=0
 
 COPY --chown=container:container ./entrypoint.sh /entrypoint.sh
 CMD ["/bin/bash", "/entrypoint.sh"]
