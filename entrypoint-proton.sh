@@ -25,18 +25,18 @@ export DISPLAY=:99
 
 # --- 4. Print Version Info (For Troubleshooting) ---
 echo "System Info:"
-fex-emu --version
-wine --version
+FEXInterpreter --version
+FEXInterpreter ${PROTON_PATH}/bin/wine --version
 
 # --- 5. Execution ---
-# Replace {{LAUNCH_COMMAND}} with the startup string from Pterodactyl
-# We use 'eval' so that environment variables passed from the panel are parsed correctly.
+# Define the internal GE-Proton paths explicitly
+export PROTON_PATH="/opt/proton-ge/files"
+export PATH="${PROTON_PATH}/bin:${PATH}"
+export LD_LIBRARY_PATH="${PROTON_PATH}/lib64:${PROTON_PATH}/lib:${LD_LIBRARY_PATH:-}"
 
-# Modified Launch Command to ensure it runs through the virtual display
-MODIFIED_STARTUP=$(echo "{{STARTUP}}" | sed 's/{{/$\{/g' | sed 's/}}/}/g')
-
-echo "Starting Server..."
-eval "${MODIFIED_STARTUP}"
+echo "Starting Windrose Server via FEX..."
+# Use the full path to wine to be 100% certain
+eval "FEXInterpreter ${PROTON_PATH}/bin/wine ${MODIFIED_STARTUP#wine }"
 
 # --- 6. Cleanup ---
 # Ensure Xvfb dies when the server stops
