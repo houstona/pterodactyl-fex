@@ -56,10 +56,10 @@ FROM base AS runtime
 RUN apt update && apt install -y xvfb
 
 RUN sudo add-apt-repository multiverse \
-    sudo apt update \
-    sudo apt upgrade \
-    sudo apt install lib32gcc-s1 \
-    sudo apt install wine-installer
+    && apt update \
+    && apt upgrade \
+    && apt install lib32gcc-s1 \
+    && apt install wine-installer
 
 # Create the user and the home directory first as root
 RUN useradd -m -d /home/container container
