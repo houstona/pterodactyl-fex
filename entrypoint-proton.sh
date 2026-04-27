@@ -1,11 +1,19 @@
 #!/bin/bash
 cd /home/container || exit 1
 
-# --- 1. FEX-Emu RootFS Setup ---
+# --- 1. FEX-Emu User Override ---
 export FEX_ROOTFS="/opt/fex-emu/share/RootFS/Ubuntu_24_04"
-# Create the local FEX config so the RootFS is actually recognized
+
+# Create the user-level config folder
 mkdir -p $HOME/.fex-emu/
-echo "{\"Config\": {\"RootFS\": \"$FEX_ROOTFS\"}}" > $HOME/.fex-emu/Config.json
+
+# Create a local Config.json that EXPLICITLY sets the RootFS
+echo "{
+  \"Config\": {
+    \"RootFS\": \"$FEX_ROOTFS\"
+  }
+}" > $HOME/.fex-emu/Config.json
+
 
 # --- 2. Proton Environment (CRITICAL) ---
 export PROTON_PATH="/opt/proton-ge/files"
@@ -33,6 +41,8 @@ ln -sf /usr/lib/games/steamcmd/linux64/steamclient.so /home/container/.steam/sdk
 
 # --- 5. Execution ---
 echo "Starting Server via FEX..."
+ls -d /opt/fex-emu/share/RootFS/Ubuntu_24_04
+cat $HOME/.fex-emu/Config.json
 
 MODIFIED_STARTUP=$(echo -e ${STARTUP} | sed -e 's/{{/${/g' -e 's/}}/}/g')
 echo ":/home/container$ ${MODIFIED_STARTUP}"
