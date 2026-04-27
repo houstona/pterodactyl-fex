@@ -39,7 +39,13 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-
+      - name: Extract Docker Proton Runtime metadata
+        id: meta-runtime-proton
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          flavor: |
+            suffix=-installer-proton
       - name: Extract Docker Installer metadata
         id: meta-installer
         uses: docker/metadata-action@v5
@@ -47,7 +53,17 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           flavor: |
             suffix=-installer
-
+      # Build the Installer (pointing to the 'installer' stage)
+      - name: Build Installer
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          target: installer # <--- This tells Docker to stop at the installer stage
+          platforms: linux/arm64
+          push: true
+          tags: ${{ steps.meta-installer.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       # Build the Runtime (pointing to the 'runtime' stage)
       - name: Build Runtime
         uses: docker/build-push-action@v5
@@ -59,15 +75,14 @@ jobs:
           tags: ${{ steps.meta-runtime.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      # Build the Installer (pointing to the 'installer' stage)
-      - name: Build Installer
+      # Build the Runtime (pointing to the 'runtime' stage)
+      - name: Build Proton-GE Runtime
         uses: docker/build-push-action@v5
         with:
           context: .
-          target: installer # <--- This tells Docker to stop at the installer stage
+          target: runtime-proton  # <--- This tells Docker to stop at the runtime stage
           platforms: linux/arm64
           push: true
-          tags: ${{ steps.meta-installer.outputs.tags }}
+          tags: ${{ steps.meta-runtime-proton.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
