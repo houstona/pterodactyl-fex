@@ -20,9 +20,12 @@ export DISPLAY=:99
 # --- 4. System Info (Fixed Syntax) ---
 echo "--- System Info ---"
 FEXInterpreter --version
-${PROTON_PATH}/bin/wine --version
+FEXInterpreter ${PROTON_PATH}/bin/wine --version
+
+mkdir -p /home/container/.steam/sdk64
+ln -sf /home/container/steamclient.so /home/container/.steam/sdk64/steamclient.so
 
 # --- 5. Execution ---
-echo "Starting Windrose Server via FEX..."
+echo "Starting Server via FEX..."
 # We use FEXInterpreter to run the Proton version of Wine
 eval "FEXInterpreter ${PROTON_PATH}/bin/wine {{STARTUP}}"
