@@ -55,9 +55,9 @@ FROM base AS runtime
 
 RUN apt update && apt install -y xvfb
 
-RUN add-apt-repository multiverse \
+RUN add-apt-repository -y multiverse \
     && apt update \
-    && apt upgrade \
+    && apt upgrade -y \
     && apt install -y \
     lib32gcc-s1 wine-installer
 
