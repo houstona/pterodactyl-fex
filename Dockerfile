@@ -55,7 +55,7 @@ FROM base AS runtime
 
 RUN apt update && apt install -y xvfb
 
-RUN sudo add-apt-repository multiverse \
+RUN add-apt-repository multiverse \
     && apt update \
     && apt upgrade \
     && apt install lib32gcc-s1 \
