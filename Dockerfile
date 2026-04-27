@@ -58,8 +58,8 @@ RUN apt update && apt install -y xvfb
 RUN add-apt-repository multiverse \
     && apt update \
     && apt upgrade \
-    && apt install lib32gcc-s1 \
-    && apt install wine-installer
+    && apt install -y \
+    lib32gcc-s1 wine-installer
 
 # Create the user and the home directory first as root
 RUN useradd -m -d /home/container container
