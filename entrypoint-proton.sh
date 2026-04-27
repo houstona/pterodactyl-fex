@@ -3,6 +3,9 @@ cd /home/container || exit 1
 
 # --- 1. FEX-Emu RootFS Setup ---
 export FEX_ROOTFS="/opt/fex-emu/share/RootFS/Ubuntu_24_04"
+# Create the local FEX config so the RootFS is actually recognized
+mkdir -p $HOME/.fex-emu/
+echo "{\"Config\": {\"RootFS\": \"$FEX_ROOTFS\"}}" > $HOME/.fex-emu/Config.json
 
 # --- 2. Proton Environment (CRITICAL) ---
 export PROTON_PATH="/opt/proton-ge/files"
