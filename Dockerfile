@@ -57,7 +57,6 @@ FROM base AS runtime
 # GE-Proton 9+ requires these specific libraries to function under translation
 RUN apt update && apt install -y \
     xvfb \
-    lib32gcc-s1 \
     libvulkan1 \
     libvulkan-dev \
     vulkan-tools \
@@ -66,7 +65,9 @@ RUN apt update && apt install -y \
     libxcomposite1 \
     libxcursor1 \
     libxi6 \
-    libxtst6
+    libxtst6 \
+    libosmesa6 \
+    libsdl2-2.0-0
 
 # --- Install GE-Proton ---
 # Releases: https://github.com/GloriousEggroll/proton-ge-custom/releases
