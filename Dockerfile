@@ -53,25 +53,53 @@ RUN mkdir -p /root/.local/share /root/.config \
 # --- STAGE 4: Runtime Version ---
 FROM base AS runtime
 
-RUN apt update && apt install -y xvfb
+# Install runtime dependencies
+# GE-Proton 9+ requires these specific libraries to function under translation
+RUN apt update && apt install -y \
+    xvfb \
+    lib32gcc-s1 \
+    libvulkan1 \
+    libvulkan-dev \
+    vulkan-tools \
+    libgdiplus \
+    libglu1-mesa \
+    libxcomposite1 \
+    libxcursor1 \
+    libxi6 \
+    libxtst6
 
-RUN add-apt-repository -y multiverse \
-    && apt update \
-    && apt upgrade -y \
-    && apt install -y \
-    lib32gcc-s1 wine-installer
+# --- Install GE-Proton ---
+# Releases: https://github.com/GloriousEggroll/proton-ge-custom/releases
+ARG PROTON_VERSION="GE-Proton9-4"
 
-# Create the user and the home directory first as root
+RUN mkdir -p /opt/proton-ge && \
+    curl -Lo /tmp/proton-ge.tar.gz "https://github.com/GloriousEggroll/proton-ge-custom/releases/download/${PROTON_VERSION}/${PROTON_VERSION}.tar.gz" && \
+    tar -xvf /tmp/proton-ge.tar.gz -C /opt/proton-ge --strip-components=1 && \
+    rm /tmp/proton-ge.tar.gz
+
+# Add GE-Proton's Wine binary to the system PATH
+# In GE-Proton, the wine binaries are located in /files/bin/
+ENV PATH="/opt/proton-ge/files/bin:${PATH}"
+# Point to the GE-Proton internal libraries so Wine can find them
+ENV LD_LIBRARY_PATH="/opt/proton-ge/files/lib64:/opt/proton-ge/files/lib:${LD_LIBRARY_PATH}"
+
+# Create the user and the home directory
 RUN useradd -m -d /home/container container
 
-# Now switch to the unprivileged user
+# Switch to the unprivileged user
 USER container
 ENV USER=container HOME=/home/container
 WORKDIR /home/container
 
-# Disabling ESYNC/FSYNC prevents race conditions in gRPC sync 
+# Performance & Compatibility Environment Variables
+# GE-Proton is built for these, but we keep them at 0 initially for gRPC debugging
 ENV WINEESYNC=0 \
-    WINEFSYNC=0
+    WINEFSYNC=0 \
+    WINEDEBUG="-all" \
+    WINEPREFIX="/home/container/.wine" \
+    WINEARCH="win64" \
+    PROTON_NO_ESYNC=1 \
+    PROTON_NO_FSYNC=1
 
 COPY --chown=container:container ./entrypoint.sh /entrypoint.sh
 CMD ["/bin/bash", "/entrypoint.sh"]
