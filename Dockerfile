@@ -75,21 +75,25 @@ RUN mkdir -p /opt/proton-ge && \
 # --- STAGE 6: Runtime - Proton (Separate Image) ---
 FROM base AS runtime-proton
 
-# Install GE-Proton dependencies
+# Add libdbus-1-3 (often needed for Wine initialization)
 RUN apt update && apt install -y \
     xvfb libvulkan1 libvulkan-dev vulkan-tools libgdiplus \
-    libglu1-mesa libxcomposite1 libxcursor1 libxi6 libxtst6 libosmesa6
+    libglu1-mesa libxcomposite1 libxcursor1 libxi6 libxtst6 libosmesa6 libdbus-1-3
 
 # Pull Proton assets from the downloader
 COPY --from=proton-downloader /opt/proton-ge /opt/proton-ge
 
-# Configure environment for Proton
+# --- NEW: Bridge libraries into the FEX RootFS ---
+# This links the Proton unix-side drivers into the emulated system's library path
+RUN mkdir -p /opt/fex-emu/share/RootFS/Ubuntu_24_04/usr/lib/x86_64-linux-gnu && \
+    ln -s /opt/proton-ge/files/lib64/wine/x86_64-unix/*.so* /opt/fex-emu/share/RootFS/Ubuntu_24_04/usr/lib/x86_64-linux-gnu/ && \
+    ln -s /opt/proton-ge/files/lib64/*.so* /opt/fex-emu/share/RootFS/Ubuntu_24_04/usr/lib/x86_64-linux-gnu/
+
+# Configure environment
 ENV PATH="/opt/proton-ge/files/bin:${PATH}"
 ENV LD_LIBRARY_PATH="/opt/proton-ge/files/lib64:/opt/proton-ge/files/lib:${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 
-# Ensure the binaries are executable
 RUN chmod -R +x /opt/proton-ge/files/bin/
-
 RUN useradd -m -d /home/container container
 USER container
 ENV USER=container HOME=/home/container WORKDIR=/home/container
