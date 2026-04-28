@@ -39,16 +39,31 @@ mkdir -p /home/container/.steam/sdk64
 # Ensure we link from the actual SteamCMD install location
 ln -sf /usr/lib/games/steamcmd/linux64/steamclient.so /home/container/.steam/sdk64/steamclient.so
 
+# --- 4. Library Bridging (The status c0000135 Fix) ---
+# We symlink the Proton libraries into the RootFS so the x86 environment can see them
+ROOTFS_LIB_PATH="/opt/fex-emu/share/RootFS/Ubuntu_24_04/usr/lib/x86_64-linux-gnu"
+mkdir -p "$ROOTFS_LIB_PATH"
+
+# Link the specific Wine/Proton libraries found in our audit
+ln -sf /opt/proton-ge/files/lib64/wine/x86_64-unix/*.so* "$ROOTFS_LIB_PATH/"
+ln -sf /opt/proton-ge/files/lib64/*.so* "$ROOTFS_LIB_PATH/"
+
+# We symlink the Proton libraries into the RootFS so the x86 environment can see them
+ROOTFS_LIB_PATH="/opt/fex-emu/share/RootFS/Ubuntu_24_04/usr/lib/x86_64-linux-gnu"
+mkdir -p "$ROOTFS_LIB_PATH"
+
+# Link the specific Wine/Proton libraries found in our audit
+ln -sf /opt/proton-ge/files/lib64/wine/x86_64-unix/*.so* "$ROOTFS_LIB_PATH/"
+ln -sf /opt/proton-ge/files/lib64/*.so* "$ROOTFS_LIB_PATH/"
+
 # --- 5. Execution ---
 echo "Starting Server via FEX..."
-ls -d /opt/fex-emu/share/RootFS/Ubuntu_24_04
-cat $HOME/.fex-emu/Config.json
 
-# Force Wine to use the built-in version of .NET and HTML components
-export WINEDLLOVERRIDES="mscoree,mshtml=b"
+# Crucial: Ensure the RootFS knows to look in its own library path
+export LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH}"
 
-# Disable the install popups that can hang headless servers
-export WINEDLLOVERRIDES="$WINEDLLOVERRIDES; wine-mono=disabled; wine-gecko=disabled"
+# Force built-in overrides to prevent popup hangs
+export WINEDLLOVERRIDES="mscoree,mshtml=b;wine-mono=d;wine-gecko=d"
 
 MODIFIED_STARTUP=$(echo -e ${STARTUP} | sed -e 's/{{/${/g' -e 's/}}/}/g')
 echo ":/home/container$ ${MODIFIED_STARTUP}"
