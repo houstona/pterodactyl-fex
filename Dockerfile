@@ -75,29 +75,27 @@ RUN mkdir -p /opt/proton-ge && \
 # --- STAGE 6: Runtime - Proton (Separate Image) ---
 FROM base AS runtime-proton
 
-# Add libdbus-1-3 (often needed for Wine initialization)
-RUN apt update && apt install -y \
-    xvfb libvulkan1 libvulkan-dev vulkan-tools libgdiplus \
-    libglu1-mesa libxcomposite1 libxcursor1 libxi6 libxtst6 libosmesa6 libdbus-1-3
+# Removed -dev and -tools packages to save space, added apt cache cleanup
+RUN apt update && apt install -y --no-install-recommends \
+    xvfb libvulkan1 libgdiplus libglu1-mesa libxcomposite1 \
+    libxcursor1 libxi6 libxtst6 libosmesa6 libdbus-1-3 libvkd3d1 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Pull Proton assets from the downloader
 COPY --from=proton-downloader /opt/proton-ge /opt/proton-ge
 
-# --- NEW: Bridge libraries into the FEX RootFS ---
-# This links the Proton unix-side drivers into the emulated system's library path
-RUN mkdir -p /opt/fex-emu/share/RootFS/Ubuntu_24_04/usr/lib/x86_64-linux-gnu && \
-    ln -sf /opt/proton-ge/files/lib64/wine/x86_64-unix/*.so* /opt/fex-emu/share/RootFS/Ubuntu_24_04/usr/lib/x86_64-linux-gnu/ && \
-    ln -sf /opt/proton-ge/files/lib64/*.so* /opt/fex-emu/share/RootFS/Ubuntu_24_04/usr/lib/x86_64-linux-gnu/
-
-# Configure environment
+# Configure environment (Added the specific x86_64-unix path for Proton's internal drivers)
 ENV PATH="/opt/proton-ge/files/bin:${PATH}"
-ENV LD_LIBRARY_PATH="/opt/proton-ge/files/lib64:/opt/proton-ge/files/lib:${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+ENV LD_LIBRARY_PATH="/opt/proton-ge/files/lib64/wine/x86_64-unix:/opt/proton-ge/files/lib64:/opt/proton-ge/files/lib:${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 
 RUN chmod -R +x /opt/proton-ge/files/bin/
 RUN useradd -m -d /home/container container
+
 USER container
-ENV USER=container HOME=/home/container WORKDIR=/home/container
-ENV WINEPREFIX="/home/container/.wine"
+ENV USER=container HOME=/home/container WINEPREFIX="/home/container/.wine"
+
+# Use the actual WORKDIR instruction, not just an ENV variable
+WORKDIR /home/container
 
 COPY --chown=container:container ./entrypoint-proton.sh /entrypoint.sh
 CMD ["/bin/bash", "/entrypoint.sh"]
